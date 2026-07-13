@@ -2,9 +2,8 @@
 // Centraliza todas las llamadas HTTP al backend.
 // La URL base se configura via variable de entorno VITE_API_URL.
 
-// Si hay variable de entorno la usa. Si no, usa el proxy en local o Render en producción.
-const fallbackUrl = import.meta.env.DEV ? '/api' : 'https://dolarito-api.onrender.com/api';
-const BASE_URL = (import.meta.env.VITE_API_URL || fallbackUrl).trim();
+// Forzamos la URL de Render directo para evitar problemas de caché/entorno en Netlify
+const BASE_URL = 'https://dolarito-api.onrender.com/api';
 
 /**
  * Helper genérico para fetch con JSON.

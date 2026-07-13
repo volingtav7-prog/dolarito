@@ -148,7 +148,7 @@ export default function LoginPage() {
         <p className="auth-footer">
           ¿No tenés cuenta?{' '}
           <Link to="/register" id="login-go-register" className="auth-footer__link">
-            Registrate gratis
+            Registrate gratis (v2)
           </Link>
         </p>
       </div>
