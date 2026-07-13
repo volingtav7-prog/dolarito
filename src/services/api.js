@@ -2,7 +2,9 @@
 // Centraliza todas las llamadas HTTP al backend.
 // La URL base se configura via variable de entorno VITE_API_URL.
 
-const BASE_URL = (import.meta.env.VITE_API_URL ?? '/api').trim();
+// Si hay variable de entorno la usa. Si no, usa el proxy en local o Render en producción.
+const fallbackUrl = import.meta.env.DEV ? '/api' : 'https://dolarito-api.onrender.com/api';
+const BASE_URL = (import.meta.env.VITE_API_URL || fallbackUrl).trim();
 
 /**
  * Helper genérico para fetch con JSON.
