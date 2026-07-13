@@ -2,7 +2,7 @@
 // Centraliza todas las llamadas HTTP al backend.
 // La URL base se configura via variable de entorno VITE_API_URL.
 
-const BASE_URL = import.meta.env.VITE_API_URL ?? '/api';
+const BASE_URL = (import.meta.env.VITE_API_URL ?? '/api').trim();
 
 /**
  * Helper genérico para fetch con JSON.
