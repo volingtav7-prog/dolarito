@@ -5,13 +5,19 @@ const transporter = nodemailer.createTransport({
   auth: {
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS
-  }
+  },
+  connectionTimeout: 5000, // 5 segundos maximo para conectar
+  greetingTimeout: 5000,
+  socketTimeout: 5000
 });
 
 async function sendResetPasswordEmail(toEmail, token) {
   // Eliminamos la restricción temporal para que puedas probar con cualquier correo.
 
   const resetUrl = `https://dolarito-santi.netlify.app/reset-password?token=${token}`;
+  
+  // Log the URL so the user can manually click it in Render logs if SMTP is blocked
+  console.log(`[ATENCION] URL de Recuperación para ${toEmail}: \n\n ${resetUrl} \n\n (Si el email falla por Render, copia y pega este link)`);
   
   const mailOptions = {
     from: `"Dolarito" <${process.env.EMAIL_USER}>`,

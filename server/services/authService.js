@@ -74,8 +74,10 @@ async function forgotPassword(email) {
 
   await userModel.updateResetToken(email, resetToken, expires.toISOString());
   
-  // Enviar email
-  await emailService.sendResetPasswordEmail(email, resetToken);
+  // Enviar email sin bloquear la respuesta (fire and forget)
+  emailService.sendResetPasswordEmail(email, resetToken).catch(err => {
+    console.error('Error al enviar correo (posible bloqueo SMTP en Render):', err);
+  });
 
   return { success: true, message: 'Si el correo existe, enviaremos un enlace.' };
 }
