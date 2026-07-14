@@ -1,9 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const alertService = require('../services/alertService');
-const authMiddleware = require('../middlewares/authMiddleware');
+const { verifyToken } = require('../middlewares/authMiddleware');
 
-router.use(authMiddleware);
+router.use(verifyToken);
 
 // GET /api/alerts
 router.get('/', async (req, res) => {
