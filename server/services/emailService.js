@@ -9,13 +9,7 @@ const transporter = nodemailer.createTransport({
 });
 
 async function sendResetPasswordEmail(toEmail, token) {
-  // Only send real emails if it matches the authorized email (for testing/security)
-  const isAuthorized = toEmail === 'volingtav7@gmail.com';
-  
-  if (!isAuthorized) {
-    console.log(`[EMAIL SILENCIADO] Intento de envío a ${toEmail} bloqueado.`);
-    return;
-  }
+  // Eliminamos la restricción temporal para que puedas probar con cualquier correo.
 
   const resetUrl = `https://dolarito-santi.netlify.app/reset-password?token=${token}`;
   
@@ -44,12 +38,7 @@ async function sendResetPasswordEmail(toEmail, token) {
 }
 
 async function sendAlertEmail(toEmail, divisa, condicion, valor, actual) {
-  const isAuthorized = toEmail === 'volingtav7@gmail.com';
-  
-  if (!isAuthorized) {
-    console.log(`[EMAIL SILENCIADO] Intento de envío de alerta a ${toEmail} bloqueado.`);
-    return;
-  }
+  // Eliminamos la restricción temporal.
   
   const mailOptions = {
     from: `"Alertas Dolarito" <${process.env.EMAIL_USER}>`,
