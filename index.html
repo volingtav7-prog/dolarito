@@ -1402,7 +1402,7 @@
       let convHistory = [];
 
       // ── INIT ───────────────────────────────────────────────────────────────
-      function init() {
+      async function init() {
         buildFilterRow();
         buildCards();
         buildTicker();
@@ -1410,7 +1410,12 @@
         buildChart();
         buildMarketChart();
         updateTimestamp();
-        setInterval(liveUpdate, 4000);
+        
+        // Primera carga real
+        await liveUpdate();
+        
+        // Actualizar cada 60 segundos
+        setInterval(liveUpdate, 60000);
         calcConv();
       }
 
@@ -1426,11 +1431,22 @@
       }
 
       // ── LIVE UPDATE ────────────────────────────────────────────────────────
-      function liveUpdate() {
-        Object.keys(rates).forEach((k) => {
-          const drift = (Math.random() - 0.49) * 0.003;
-          rates[k] = Math.round(rates[k] * (1 + drift));
-        });
+      async function liveUpdate() {
+        try {
+          const res = await fetch('https://dolarito-api.onrender.com/api/rates');
+          if (res.ok) {
+            const data = await res.json();
+            // data es un array de {codigo, mercado, compra, venta}
+            data.forEach(item => {
+              // Mapeamos a las claves usadas en el front (ej: USD_BLUE)
+              const key = item.tipo === 'Cripto' ? item.codigo : `${item.codigo}_${item.mercado.toUpperCase()}`;
+              rates[key] = item.venta;
+            });
+          }
+        } catch (e) {
+          console.error("Error fetching rates", e);
+        }
+
         buildCards();
         buildTicker();
         buildMarketStrip();
