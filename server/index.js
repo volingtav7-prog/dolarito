@@ -11,8 +11,12 @@ app.use(express.json());
 // Rutas
 const authRoutes = require('./routes/authRoutes');
 const ratesRoutes = require('./routes/ratesRoutes');
+const alertRoutes = require('./routes/alertRoutes');
+const favoritesRoutes = require('./routes/favoritesRoutes');
 app.use('/api/auth', authRoutes);
 app.use('/api/rates', ratesRoutes);
+app.use('/api/alerts', alertRoutes);
+app.use('/api/favorites', favoritesRoutes);
 
 // Sincronización de cotizaciones
 const { syncRates } = require('./services/syncService');

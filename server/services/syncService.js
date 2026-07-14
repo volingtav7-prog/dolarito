@@ -1,4 +1,5 @@
 const pool = require('../config/db');
+const alertService = require('./alertService');
 
 /**
  * Fetch rates from DolarApi (Argentina) and CoinGecko (Crypto)
@@ -49,6 +50,9 @@ async function syncRates() {
     
     await client.query('COMMIT');
     console.log('✅ Cotizaciones sincronizadas con éxito.');
+    
+    // Luego de sincronizar, verificamos las alertas
+    await alertService.checkAlerts();
   } catch (err) {
     await client.query('ROLLBACK');
     console.error('❌ Error sincronizando cotizaciones:', err.message);

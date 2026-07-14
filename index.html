@@ -1093,6 +1093,9 @@
           <button class="nav-btn" onclick="switchTab('conversor')">
             Conversor
           </button>
+          <button class="nav-btn" onclick="switchTab('calculadora')">
+            Calculadora
+          </button>
           <button class="nav-btn" onclick="switchTab('graficos')">
             Gráficos
           </button>
@@ -1216,6 +1219,55 @@
         </div>
       </div>
 
+      <!-- CALCULADORA TAB -->
+      <div class="tab-content" id="tab-calculadora">
+        <div class="section-header">
+          <div class="section-title">Calculadora de Patrimonio</div>
+          <div class="section-sub">Suma tus sueldos y ahorros en distintas monedas</div>
+        </div>
+        <div style="max-width: 600px;">
+          <div class="converter-box" style="margin-bottom: 2rem;">
+            <div class="conv-row" style="margin-bottom: 1rem;">
+              <div style="flex: 1; text-align: left;">
+                <label style="font-size: 0.8rem; color: #94a3b8; display:block; margin-bottom: 0.3rem;">Sueldo / Ingresos (ARS)</label>
+                <input class="conv-input" id="calcARS" type="number" value="0" placeholder="0" oninput="calcPatrimony()" style="width: 100%;" />
+              </div>
+              <div style="flex: 1; text-align: left;">
+                <label style="font-size: 0.8rem; color: #94a3b8; display:block; margin-bottom: 0.3rem;">Ahorros Dólares (USD)</label>
+                <input class="conv-input" id="calcUSD" type="number" value="0" placeholder="0" oninput="calcPatrimony()" style="width: 100%;" />
+              </div>
+            </div>
+            <div class="conv-row">
+              <div style="flex: 1; text-align: left;">
+                <label style="font-size: 0.8rem; color: #94a3b8; display:block; margin-bottom: 0.3rem;">Ahorros Euros (EUR)</label>
+                <input class="conv-input" id="calcEUR" type="number" value="0" placeholder="0" oninput="calcPatrimony()" style="width: 100%;" />
+              </div>
+              <div style="flex: 1; text-align: left;">
+                <label style="font-size: 0.8rem; color: #94a3b8; display:block; margin-bottom: 0.3rem;">Cripto (USDT)</label>
+                <input class="conv-input" id="calcUSDT" type="number" value="0" placeholder="0" oninput="calcPatrimony()" style="width: 100%;" />
+              </div>
+            </div>
+          </div>
+          
+          <div class="history-box" style="padding: 1.5rem;">
+            <div style="font-size: 1.1rem; color: #c9a84c; margin-bottom: 1rem; text-align: center;">Total Estimado</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; text-align: center;">
+              <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.5rem;">En Pesos (ARS)</div>
+                <div id="patTotalARS" style="font-size: 1.4rem; font-weight: bold; color: #fff;">$0</div>
+              </div>
+              <div style="background: rgba(255,255,255,0.03); padding: 1rem; border-radius: 8px;">
+                <div style="font-size: 0.8rem; color: #94a3b8; margin-bottom: 0.5rem;">En Dólares (Blue)</div>
+                <div id="patTotalUSD" style="font-size: 1.4rem; font-weight: bold; color: #2ecc8a;">$0</div>
+              </div>
+            </div>
+            <div style="text-align: center; margin-top: 1rem; font-size: 0.85rem; color: #94a3b8;">
+              Valores calculados usando cotización de Dólar Blue y Euro Oficial.
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- GRAFICOS TAB -->
       <div class="tab-content" id="tab-graficos">
         <div class="section-header">
@@ -1299,33 +1351,28 @@
         <div class="modal-title">⚡ Configurar Alerta</div>
         <div class="modal-field">
           <label>DIVISA</label>
-          <select class="modal-select">
-            <option>Dólar Blue</option>
-            <option>Dólar Oficial</option>
-            <option>Dólar MEP</option>
-            <option>Euro Oficial</option>
-            <option>Bitcoin</option>
+          <select class="modal-select" id="alertDivisa">
+            <option value="USD_BLUE">Dólar Blue</option>
+            <option value="USD_OFICIAL">Dólar Oficial</option>
+            <option value="USD_MEP">Dólar MEP</option>
+            <option value="EUR_OFICIAL">Euro Oficial</option>
+            <option value="BTC">Bitcoin</option>
           </select>
         </div>
         <div class="modal-field">
           <label>CONDICIÓN</label>
-          <select class="modal-select">
-            <option>Sube por encima de</option>
-            <option>Baja por debajo de</option>
-            <option>Varía más de 1%</option>
-            <option>Varía más de 2%</option>
+          <select class="modal-select" id="alertCondicion">
+            <option value="Sube a">Sube a (o más)</option>
+            <option value="Baja a">Baja a (o menos)</option>
           </select>
         </div>
         <div class="modal-field">
-          <label>VALOR OBJETIVO (ARS)</label>
-          <input class="modal-input" type="number" placeholder="Ej: 1450" />
+          <label>VALOR OBJETIVO (ARS / USD)</label>
+          <input class="modal-input" id="alertValor" type="number" placeholder="Ej: 1450" />
         </div>
-        <div class="modal-field">
-          <label>EMAIL DE NOTIFICACIÓN</label>
-          <input class="modal-input" type="email" placeholder="tu@email.com" />
-        </div>
+        <!-- Email field removed since it uses the logged in user's email -->
         <div class="modal-row">
-          <button class="btn-primary" onclick="saveAlert()">
+          <button class="btn-primary" id="saveAlertBtn" onclick="saveAlert()">
             Guardar Alerta
           </button>
           <button class="btn-ghost" onclick="closeModal()">Cancelar</button>
@@ -1627,16 +1674,31 @@
         });
       }
 
-      function toggleStar(id, e) {
+      async function toggleStar(id, e) {
         e.stopPropagation();
+        
+        // Optimistic UI update
         if (starred.has(id)) starred.delete(id);
         else starred.add(id);
         buildCards();
-        toast(
-          starred.has(id)
-            ? `⭐ ${id} añadido a favoritos`
-            : `${id} eliminado de favoritos`
-        );
+        
+        const isFav = starred.has(id);
+        toast(isFav ? `⭐ ${id} añadido a favoritos` : `${id} eliminado de favoritos`);
+        
+        if (getToken()) {
+          try {
+            await fetch('https://dolarito-api.onrender.com/api/favorites/toggle', {
+              method: 'POST',
+              headers: { 
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + getToken()
+              },
+              body: JSON.stringify({ codigo_divisa: id })
+            });
+          } catch (err) {
+            console.error('Error toggling favorite on server:', err);
+          }
+        }
       }
 
       function selectType(id, type) {
@@ -1750,29 +1812,92 @@
           .join('');
       }
 
+      // ── CALCULADORA MULTIPLE ─────────────────────────────────────────────
+      function calcPatrimony() {
+        const ars = parseFloat(document.getElementById('calcARS').value) || 0;
+        const usd = parseFloat(document.getElementById('calcUSD').value) || 0;
+        const eur = parseFloat(document.getElementById('calcEUR').value) || 0;
+        const usdt = parseFloat(document.getElementById('calcUSDT').value) || 0;
+
+        const rateBlue = getRate('USD_BLUE') || 1000;
+        const rateEur = getRate('EUR_OFICIAL') || 1100;
+        const rateUsdt = getRate('USDT') || rateBlue;
+
+        // Convert everything to ARS
+        let totalARS = ars + (usd * rateBlue) + (eur * rateEur) + (usdt * rateUsdt);
+        let totalUSD = totalARS / rateBlue;
+
+        document.getElementById('patTotalARS').textContent = '$' + totalARS.toLocaleString('es-AR', { maximumFractionDigits: 0 });
+        document.getElementById('patTotalUSD').textContent = 'u$s ' + totalUSD.toLocaleString('es-AR', { maximumFractionDigits: 2 });
+      }
+
       // ── CHART ─────────────────────────────────────────────────────────────
-      function generateHistory(base, days) {
+      async function fetchHistory(key, days) {
         const pts = [];
-        let val = base;
-        for (let i = days; i >= 0; i--) {
-          val = val * (1 + (Math.random() - 0.48) * 0.025);
-          const d = new Date();
-          d.setDate(d.getDate() - i);
-          pts.push({
-            x: d.toLocaleDateString('es-AR', {
-              day: '2-digit',
-              month: '2-digit',
-            }),
-            y: Math.round(val),
-          });
+        try {
+          if (key.startsWith('USD_')) {
+            const casa = key.split('_')[1].toLowerCase();
+            const res = await fetch(`https://api.argentinadatos.com/v1/cotizaciones/dolares/${casa}`);
+            if (res.ok) {
+              const data = await res.json();
+              // data is array of {casa, compra, venta, fecha}
+              const recent = data.slice(-days);
+              for (const item of recent) {
+                const dateParts = item.fecha.split('-'); // YYYY-MM-DD
+                pts.push({
+                  x: `${dateParts[2]}/${dateParts[1]}`, // DD/MM
+                  y: parseFloat(item.venta)
+                });
+              }
+            }
+          } else if (key === 'EUR_OFICIAL') {
+            const res = await fetch(`https://api.argentinadatos.com/v1/cotizaciones/euros/oficial`);
+            if (res.ok) {
+              const data = await res.json();
+              const recent = data.slice(-days);
+              for (const item of recent) {
+                const dateParts = item.fecha.split('-');
+                pts.push({
+                  x: `${dateParts[2]}/${dateParts[1]}`,
+                  y: parseFloat(item.venta)
+                });
+              }
+            }
+          } else if (key === 'BTC' || key === 'ETH') {
+            const coin = key === 'BTC' ? 'bitcoin' : 'ethereum';
+            const res = await fetch(`https://api.coingecko.com/api/v3/coins/${coin}/market_chart?vs_currency=usd&days=${days}`);
+            if (res.ok) {
+              const data = await res.json();
+              const prices = data.prices;
+              // we only want daily points, coingecko might return hourly if days < 90
+              // to simplify, we just map them all but format the date
+              let lastDate = '';
+              for (const [ts, price] of prices) {
+                const d = new Date(ts);
+                const x = `${d.getDate().toString().padStart(2, '0')}/${(d.getMonth()+1).toString().padStart(2, '0')}`;
+                if (x !== lastDate || days <= 1) { // avoid duplicate days if possible unless days=1
+                  pts.push({ x, y: price });
+                  lastDate = x;
+                }
+              }
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching history:', err);
+        }
+        
+        // Fallback or empty handle
+        if (pts.length === 0) {
+           const d = new Date();
+           pts.push({ x: `${d.getDate()}/${d.getMonth()+1}`, y: rates[key] || 0 });
         }
         return pts;
       }
 
-      function buildChart() {
+      async function buildChart() {
         const ctx = document.getElementById('mainChart');
         const key = document.getElementById('chartCurrency').value;
-        const data = generateHistory(rates[key] || 1000, chartRange);
+        const data = await fetchHistory(key, chartRange);
         if (mainChartObj) mainChartObj.destroy();
         mainChartObj = new Chart(ctx, {
           type: 'line',
@@ -1941,14 +2066,51 @@
 
       // ── MODAL ─────────────────────────────────────────────────────────────
       function openModal() {
+        if (!getToken()) {
+          toast('⚠ Debes iniciar sesión para configurar alertas');
+          return;
+        }
         document.getElementById('modalOverlay').classList.add('open');
       }
       function closeModal() {
         document.getElementById('modalOverlay').classList.remove('open');
       }
-      function saveAlert() {
-        closeModal();
-        toast('🔔 Alerta configurada correctamente');
+      async function saveAlert() {
+        const divisa = document.getElementById('alertDivisa').value;
+        const condicion = document.getElementById('alertCondicion').value;
+        const valor = document.getElementById('alertValor').value;
+        
+        if (!valor) { toast('⚠ Ingresá un valor límite'); return; }
+        
+        const btn = document.getElementById('saveAlertBtn');
+        btn.disabled = true;
+        btn.textContent = 'Guardando...';
+        
+        try {
+          const res = await fetch('https://dolarito-api.onrender.com/api/alerts', {
+            method: 'POST',
+            headers: { 
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer ' + getToken()
+            },
+            body: JSON.stringify({
+              codigo_divisa: divisa,
+              condicion: condicion,
+              valor_limite: parseFloat(valor)
+            })
+          });
+          
+          if (!res.ok) throw new Error('Error al guardar alerta');
+          
+          closeModal();
+          toast('🔔 Alerta guardada exitosamente');
+          document.getElementById('alertValor').value = '';
+        } catch (err) {
+          toast('❌ Error guardando alerta: ' + err.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Guardar Alerta';
+        }
       }
       document
         .getElementById('modalOverlay')
@@ -2123,10 +2285,26 @@
         }
       }
 
-      function onAuthSuccess(user) {
+      async function onAuthSuccess(user) {
         document.getElementById('authScreen').classList.add('hidden');
         const userName = user?.nombre || user?.email || '';
         document.getElementById('headerUserName').textContent = userName ? '👤 ' + userName : '';
+        
+        // Load favorites
+        try {
+          const res = await fetch('https://dolarito-api.onrender.com/api/favorites', {
+            headers: { 'Authorization': 'Bearer ' + getToken() }
+          });
+          if (res.ok) {
+            const data = await res.json();
+            if (data.length > 0) {
+              starred = new Set(data);
+              buildCards();
+            }
+          }
+        } catch (err) {
+          console.error('Error fetching favorites:', err);
+        }
       }
 
       function handleLogout() {
