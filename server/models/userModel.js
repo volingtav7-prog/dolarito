@@ -16,7 +16,32 @@ const getUserByEmail = async (email) => {
   return result.rows[0];
 };
 
+const getUserByResetToken = async (token) => {
+  const result = await db.query(
+    'SELECT * FROM usuarios WHERE reset_token = $1 AND reset_token_expires > CURRENT_TIMESTAMP',
+    [token]
+  );
+  return result.rows[0];
+};
+
+const updateResetToken = async (email, token, expires) => {
+  await db.query(
+    'UPDATE usuarios SET reset_token = $1, reset_token_expires = $2 WHERE email = $3',
+    [token, expires, email]
+  );
+};
+
+const updatePassword = async (id_usuario, newPasswordHash) => {
+  await db.query(
+    'UPDATE usuarios SET password_hash = $1, reset_token = NULL, reset_token_expires = NULL WHERE id_usuario = $2',
+    [newPasswordHash, id_usuario]
+  );
+};
+
 module.exports = {
   createUser,
-  getUserByEmail
+  getUserByEmail,
+  getUserByResetToken,
+  updateResetToken,
+  updatePassword
 };

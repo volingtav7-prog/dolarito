@@ -1007,6 +1007,7 @@
             <button type="submit" class="auth-submit" id="loginBtn">Iniciar sesión</button>
           </form>
           <div class="auth-footer-link">
+            <a onclick="showForgot()">¿Olvidaste tu contraseña?</a><br><br>
             ¿No tenés cuenta? <a onclick="showRegister()">Registrate gratis</a>
           </div>
         </div>
@@ -1034,6 +1035,46 @@
           </form>
           <div class="auth-footer-link">
             ¿Ya tenés cuenta? <a onclick="showLogin()">Iniciar sesión</a>
+          </div>
+        </div>
+        <!-- Forgot Password View -->
+        <div id="forgotView" style="display:none">
+          <div class="auth-heading">
+            <h1>Recuperar clave</h1>
+            <p>Te enviaremos un código a tu email</p>
+          </div>
+          <div id="forgotAlert" style="display:none"></div>
+          <form class="auth-form" id="forgotForm" onsubmit="handleForgot(event)">
+            <div class="auth-field">
+              <label for="forgotEmail">Email</label>
+              <input id="forgotEmail" type="email" name="email" placeholder="tu@email.com" required />
+            </div>
+            <button type="submit" class="auth-submit" id="forgotBtn">Enviar código</button>
+          </form>
+          <div class="auth-footer-link">
+            <a onclick="showLogin()">Volver a Iniciar Sesión</a>
+          </div>
+        </div>
+        <!-- Reset Password View -->
+        <div id="resetView" style="display:none">
+          <div class="auth-heading">
+            <h1>Nueva contraseña</h1>
+            <p>Ingresá el código que recibiste</p>
+          </div>
+          <div id="resetAlert" style="display:none"></div>
+          <form class="auth-form" id="resetForm" onsubmit="handleReset(event)">
+            <div class="auth-field">
+              <label for="resetToken">Código (Token)</label>
+              <input id="resetToken" type="text" name="token" placeholder="Ej: abcdef1234..." required />
+            </div>
+            <div class="auth-field">
+              <label for="resetPassword">Nueva Contraseña</label>
+              <input id="resetPassword" type="password" name="password" placeholder="Mínimo 6 caracteres" required />
+            </div>
+            <button type="submit" class="auth-submit" id="resetBtn">Guardar contraseña</button>
+          </form>
+          <div class="auth-footer-link">
+            <a onclick="showLogin()">Volver al Login</a>
           </div>
         </div>
       </div>
@@ -1951,13 +1992,31 @@
 
       function showRegister() {
         document.getElementById('loginView').style.display = 'none';
+        document.getElementById('forgotView').style.display = 'none';
+        document.getElementById('resetView').style.display = 'none';
         document.getElementById('registerView').style.display = 'block';
         hideAuthAlert('loginAlert');
       }
       function showLogin() {
         document.getElementById('registerView').style.display = 'none';
+        document.getElementById('forgotView').style.display = 'none';
+        document.getElementById('resetView').style.display = 'none';
         document.getElementById('loginView').style.display = 'block';
         hideAuthAlert('registerAlert');
+      }
+      function showForgot() {
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('registerView').style.display = 'none';
+        document.getElementById('resetView').style.display = 'none';
+        document.getElementById('forgotView').style.display = 'block';
+        hideAuthAlert('loginAlert');
+      }
+      function showReset() {
+        document.getElementById('loginView').style.display = 'none';
+        document.getElementById('registerView').style.display = 'none';
+        document.getElementById('forgotView').style.display = 'none';
+        document.getElementById('resetView').style.display = 'block';
+        hideAuthAlert('forgotAlert');
       }
 
       async function handleLogin(e) {
@@ -2009,6 +2068,58 @@
           showAuthAlert('registerAlert', err.message, 'error');
           btn.disabled = false;
           btn.innerHTML = 'Crear cuenta';
+        }
+      }
+
+      async function handleForgot(e) {
+        e.preventDefault();
+        const btn = document.getElementById('forgotBtn');
+        const email = document.getElementById('forgotEmail').value.trim();
+        hideAuthAlert('forgotAlert');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="auth-spinner"></span>Enviando…';
+        try {
+          const res = await fetch('https://dolarito-api.onrender.com/api/auth/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Error');
+          showAuthAlert('forgotAlert', 'Si el correo existe, enviamos un enlace.', 'success');
+          setTimeout(showReset, 2000);
+        } catch (err) {
+          showAuthAlert('forgotAlert', err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Enviar código';
+        }
+      }
+
+      async function handleReset(e) {
+        e.preventDefault();
+        const btn = document.getElementById('resetBtn');
+        const token = document.getElementById('resetToken').value.trim();
+        const password = document.getElementById('resetPassword').value;
+        hideAuthAlert('resetAlert');
+        if (password.length < 6) { showAuthAlert('resetAlert', 'Mínimo 6 caracteres.', 'error'); return; }
+        btn.disabled = true;
+        btn.innerHTML = '<span class="auth-spinner"></span>Guardando…';
+        try {
+          const res = await fetch('https://dolarito-api.onrender.com/api/auth/reset-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ token, newPassword: password })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data.error || 'Error');
+          showAuthAlert('resetAlert', 'Contraseña actualizada. Ya podés iniciar sesión.', 'success');
+          setTimeout(showLogin, 2500);
+        } catch (err) {
+          showAuthAlert('resetAlert', err.message, 'error');
+        } finally {
+          btn.disabled = false;
+          btn.innerHTML = 'Guardar contraseña';
         }
       }
 

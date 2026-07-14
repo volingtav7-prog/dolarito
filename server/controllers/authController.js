@@ -26,4 +26,26 @@ const login = async (req, res) => {
   }
 };
 
-module.exports = { register, login };
+const forgotPassword = async (req, res) => {
+  try {
+    const { email } = req.body;
+    const result = await authService.forgotPassword(email);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error en forgotPassword:', error);
+    res.status(error.status || 500).json({ error: error.message || 'Error interno' });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+    const result = await authService.resetPassword(token, newPassword);
+    res.status(200).json(result);
+  } catch (error) {
+    console.error('Error en resetPassword:', error);
+    res.status(error.status || 500).json({ error: error.message || 'Error interno' });
+  }
+};
+
+module.exports = { register, login, forgotPassword, resetPassword };

@@ -4,7 +4,9 @@
 
 const bcrypt = require('bcrypt');
 const jwt    = require('jsonwebtoken');
+const crypto = require('crypto');
 const userModel = require('../models/userModel');
+const emailService = require('./emailService');
 
 const SALT_ROUNDS = 10;
 const JWT_EXPIRES = '24h';
@@ -56,6 +58,44 @@ async function loginUser(email, password) {
   return { user: safeUser, token };
 }
 
+// ── Recuperación de contraseña ────────────────────────────────────────────────
+async function forgotPassword(email) {
+  if (!email) throw Object.assign(new Error('Email obligatorio'), { status: 400 });
+
+  const user = await userModel.getUserByEmail(email);
+  if (!user) {
+    // Para no revelar qué emails están registrados, no devolvemos error
+    return { success: true, message: 'Si el correo existe, enviaremos un enlace.' };
+  }
+
+  // Generar token seguro
+  const resetToken = crypto.randomBytes(32).toString('hex');
+  const expires = new Date(Date.now() + 1000 * 60 * 30); // 30 min
+
+  await userModel.updateResetToken(email, resetToken, expires.toISOString());
+  
+  // Enviar email
+  await emailService.sendResetPasswordEmail(email, resetToken);
+
+  return { success: true, message: 'Si el correo existe, enviaremos un enlace.' };
+}
+
+async function resetPassword(token, newPassword) {
+  if (!token || !newPassword) {
+    throw Object.assign(new Error('Token y contraseña son obligatorios'), { status: 400 });
+  }
+
+  const user = await userModel.getUserByResetToken(token);
+  if (!user) {
+    throw Object.assign(new Error('Token inválido o expirado'), { status: 400 });
+  }
+
+  const newHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+  await userModel.updatePassword(user.id_usuario, newHash);
+
+  return { success: true, message: 'Contraseña actualizada correctamente.' };
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 function signToken(user) {
@@ -66,4 +106,4 @@ function signToken(user) {
   );
 }
 
-module.exports = { registerUser, loginUser };
+module.exports = { registerUser, loginUser, forgotPassword, resetPassword };
