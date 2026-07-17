@@ -1,0 +1,106 @@
+/* ── src/components/Layout/DashboardLayout.css ────────────────────────── */
+
+.dashboard-layout {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  background-color: var(--bg-dark);
+}
+
+.dashboard-nav {
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 40px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--bg-card); /* slightly different bg for header maybe */
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  min-width: 200px;
+}
+
+.nav-logo {
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #FFFFFF;
+}
+
+.nav-center {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+}
+
+.nav-link {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  padding: 8px 0;
+  border-bottom: 2px solid transparent;
+  transition: all 0.2s;
+}
+
+.nav-link:hover {
+  color: var(--text-main);
+}
+
+.nav-link.active {
+  color: var(--brand-gold);
+  border-bottom-color: var(--brand-gold);
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  min-width: 200px;
+  justify-content: flex-end;
+}
+
+.nav-icon-btn {
+  background: none;
+  border: none;
+  font-size: 20px;
+  color: var(--text-secondary);
+  cursor: pointer;
+}
+
+.nav-icon-btn:hover {
+  color: var(--text-main);
+}
+
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: var(--bg-input);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  color: var(--brand-gold);
+  border: 1px solid var(--border-color);
+}
+
+.dashboard-content {
+  flex: 1;
+  padding: 40px;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
+}

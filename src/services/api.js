@@ -51,3 +51,12 @@ export function authLogin({ email, password }) {
     body: JSON.stringify({ email, password }),
   });
 }
+
+/**
+ * Obtiene las cotizaciones actuales
+ */
+export function fetchRates() {
+  return request('/rates', {
+    method: 'GET',
+  });
+}
